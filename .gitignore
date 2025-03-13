@@ -1,0 +1,5 @@
+gitlab/data
+gitlab/logs
+gitlab/config
+authentik/.env
+portainer/portainer-data/

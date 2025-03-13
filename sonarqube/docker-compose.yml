@@ -1,0 +1,44 @@
+services:
+  # PostgreSQL Database for SonarQube
+  sonarqube-db:
+    image: docker.io/bitnami/postgresql:17
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s   # Check every 10 seconds
+      timeout: 5s     # Wait up to 5 seconds for a response
+      retries: 5      # Retry 5 times before marking as unhealthy
+    container_name: sonarqube-db
+    environment:
+      - POSTGRESQL_DATABASE=bitnami_sonarqube
+      - POSTGRESQL_PASSWORD=postgres
+      - POSTGRESQL_USERNAME=postgres
+    volumes:
+      - 'sonarqube_db_data:/bitnami/postgresql'
+
+  # SonarQube (Code Quality Analysis)
+  sonarqube:
+    container_name: sonarqube
+    image: docker.io/bitnami/sonarqube:25.3.0
+    restart: unless-stopped
+    ports:
+      - '83:9000'
+    volumes:
+      - 'sonarqube_data:/bitnami/sonarqube'
+    working_dir: /app
+    depends_on:
+      sonarqube-db:
+        condition: service_healthy  
+    environment:
+      # ALLOW_EMPTY_PASSWORD is recommended only for development.
+      # - ALLOW_EMPTY_PASSWORD=yes
+      - SONARQUBE_DATABASE_HOST=sonarqube-db
+      - SONARQUBE_DATABASE_NAME=bitnami_sonarqube
+      - SONARQUBE_DATABASE_PASSWORD=postgres
+      - SONARQUBE_DATABASE_USER=postgres
+      - SONARQUBE_USERNAME=admin
+      - SONARQUBE_PASSWORD=admin
+volumes:
+  sonarqube_db_data:
+  sonarqube_data:
+
