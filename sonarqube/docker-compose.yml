@@ -15,14 +15,14 @@ services:
       - POSTGRESQL_USERNAME=postgres
     volumes:
       - 'sonarqube_db_data:/bitnami/postgresql'
+    networks:
+      - sonarqube
 
   # SonarQube (Code Quality Analysis)
   sonarqube:
     container_name: sonarqube
     image: docker.io/bitnami/sonarqube:25.3.0
     restart: unless-stopped
-    ports:
-      - '83:9000'
     volumes:
       - 'sonarqube_data:/bitnami/sonarqube'
     working_dir: /app
@@ -40,7 +40,19 @@ services:
       - SONARQUBE_PASSWORD=admin
       - SONAR_CORE_SERVERBASEURL=https://sonarqube.azagal.duckdns.org
       - SONAR_WEB_CONTEXT=/
+    networks:
+      - sonarqube
+      - proxy
+    dns:
+      - 8.8.8.8    # Google DNS
+      - 1.1.1.1    # Cloudflare DNS
+
 volumes:
   sonarqube_db_data:
   sonarqube_data:
 
+networks:
+  sonarqube:
+    driver: bridge
+  proxy:
+    external: true

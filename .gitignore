@@ -4,3 +4,4 @@ gitlab/config
 gitlab/.env
 authentik/.env
 portainer/portainer-data/
+cloudflare-tunnel/.env

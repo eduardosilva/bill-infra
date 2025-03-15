@@ -1,11 +1,9 @@
 services:
   gitlab:
-    image: gitlab/gitlab-ce:17.7.6-ce.0
+    image: gitlab/gitlab-ce:17.9.2-ce.0
     container_name: gitlab
     restart: always
     hostname: gitlab.azagal.duckdns.org
-    env_file:
-      - .env
     environment:
       GITLAB_OMNIBUS_CONFIG: |
         external_url 'https://gitlab.azagal.duckdns.org'
@@ -54,12 +52,11 @@ services:
         gitlab_rails['smtp_tls'] = false
         gitlab_rails['smtp_enable_starttls_auto'] = false
     ports:
-      - "82:80"
       - "2222:22"
     volumes:
-      - ./config:/etc/gitlab
-      - ./logs:/var/log/gitlab
-      - ./data:/var/opt/gitlab
+      - gitlab_config:/etc/gitlab
+      - gitlab_logs:/var/log/gitlab
+      - gitlab_data:/var/opt/gitlab
     shm_size: "256m"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80"]
@@ -67,24 +64,16 @@ services:
       timeout: 10s
       retries: 5
     networks:
-      - gitlab_network
-      - mailhog_network
-
-  # gitlab-runner:
-  #   image: gitlab/gitlab-runner:alpine
-  #   container_name: gitlab-runner
-  #   restart: always
-  #   depends_on:
-  #     gitlab:
-  #       condition: service_healthy
-  #   volumes:
-  #     - ./config/gitlab-runner:/etc/gitlab-runner
-  #     - /var/run/docker.sock:/var/run/docker.sock
-  #   networks:
-  #     - gitlab_network
+      - smtp
+      - proxy
 
 networks:
-  mailhog_network:
+  smtp:
     external: true
-  gitlab_network:
-    driver: bridge
+  proxy:
+    external: true
+
+volumes:
+  gitlab_config:
+  gitlab_logs:
+  gitlab_data:

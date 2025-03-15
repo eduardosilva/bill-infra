@@ -4,5 +4,8 @@ services:
     container_name: gitlab-runner
     restart: always
     volumes:
-      - ./config/gitlab-runner:/etc/gitlab-runner
+      - gitlab-runner-config:/etc/gitlab-runner
       - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  gitlab-runner-config:
