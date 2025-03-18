@@ -1,0 +1,26 @@
+services:
+  bytebase:
+    image: bytebase/bytebase:3.5.0
+    container_name: bytebase
+    init: true
+    restart: unless-stopped
+    network_mode: "host"  
+    volumes:
+      - bytebase_data:/var/opt/bytebase
+
+  socat-proxy:
+    image: alpine/socat
+    container_name: socat-proxy
+    restart: unless-stopped
+    networks:
+      - proxy  
+    command: TCP-LISTEN:8080,fork,reuseaddr TCP4:host.docker.internal:8080
+    depends_on:
+      - bytebase
+
+volumes:
+  bytebase_data:
+
+networks:
+  proxy:
+    external: true  
